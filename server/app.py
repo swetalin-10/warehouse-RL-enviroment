@@ -31,7 +31,7 @@ try:
     )
 except ImportError:
     # Standalone mode -- hardened FastAPI app
-    from fastapi import FastAPI, HTTPException
+    from fastapi import Body, FastAPI, HTTPException
     from fastapi.responses import JSONResponse
     from pydantic import BaseModel, ValidationError
     from typing import Any, Dict, Literal, Optional
@@ -83,7 +83,9 @@ except ImportError:
         return {"status": "healthy"}
 
     @app.post("/reset")
-    async def reset(req: ResetRequest):
+    async def reset(req: Optional[ResetRequest] = Body(default=None)):
+        if req is None:
+            req = ResetRequest()
         global _has_been_reset
         try:
             obs = _env.reset(seed=req.seed, task_id=req.task_id)

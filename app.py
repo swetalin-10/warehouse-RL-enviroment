@@ -23,7 +23,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from typing import Any, Dict, List, Literal, Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Body, FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, ValidationError
 
@@ -232,7 +232,9 @@ def health():
         "Optionally specify a task difficulty (easy/medium/hard) and a random seed."
     ),
 )
-def reset(req: ResetRequest):
+def reset(req: Optional[ResetRequest] = Body(default=None)):
+    if req is None:
+        req = ResetRequest()
     global _has_been_reset
     try:
         task_id = req.task_id
