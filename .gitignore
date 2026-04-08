@@ -1,0 +1,52 @@
+# Python virtual environment
+.venv/
+venv/
+Lib/
+Scripts/
+Include/
+pyvenv.cfg
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Environment variables
+.env
+.env.local
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test artifacts
+test_output.txt
+test_result.txt
+eval_output.txt
+eval_run*.txt
+hard_trace*.txt
+strat_results*.txt
+test_strats.py
+*_final.txt
+*_check.txt
+
+# Docker junk (don't track local container data)
+docker-compose.override.yml
+
+# Misc
+*.log
+pyproject.toml

@@ -1,0 +1,103 @@
+name: warehouse_dispatch_env
+description: >
+  A real-world warehouse dispatch coordination environment where an AI agent
+  acts as a warehouse dispatcher, making sequential decisions to assign orders
+  to workers, replenish inventory, and meet delivery deadlines under resource
+  constraints. Features zone-based worker assignment, urgent order prioritization,
+  stock management, and deterministic grading.
+
+entry_point: app.py
+port: 7860
+
+tasks:
+  - id: easy
+    name: Small Warehouse
+    difficulty: easy
+    description: >
+      5 orders, 3 workers, 3 products. No urgent orders, generous deadlines
+      (8-12 steps), ample stock. Tests basic zone matching.
+    max_steps: 15
+    num_orders: 5
+    num_urgent: 0
+
+  - id: medium
+    name: Busy Warehouse
+    difficulty: medium
+    description: >
+      10 orders, 3 workers, 4 products. 3 urgent orders with moderate deadlines
+      (5-8 steps). One product near reorder threshold. Tests prioritization and
+      worker scheduling.
+    max_steps: 20
+    num_orders: 10
+    num_urgent: 3
+
+  - id: hard
+    name: Crisis Warehouse
+    difficulty: hard
+    description: >
+      15 orders, 3 workers, 5 products. 6 urgent orders with tight deadlines
+      (2-5 steps). 2 products below reorder threshold. Tests triage under
+      pressure and resource trade-offs.
+    max_steps: 25
+    num_orders: 15
+    num_urgent: 6
+
+action_space:
+  type: discrete
+  actions:
+    - name: assign
+      fields: [order_id, worker_id]
+      description: Assign a pending order to a free worker in the matching zone
+    - name: replenish
+      fields: [product_id]
+      description: Add 10 units of stock to a product
+    - name: skip
+      fields: []
+      description: Do nothing this step
+
+observation_space:
+  fields:
+    - name: current_step
+      type: int
+    - name: max_steps
+      type: int
+    - name: orders
+      type: list[dict]
+      description: All orders with status, priority, deadline
+    - name: workers
+      type: list[dict]
+      description: All workers with zone, availability
+    - name: inventory
+      type: list[dict]
+      description: All products with stock levels
+    - name: pending_count
+      type: int
+    - name: fulfilled_count
+      type: int
+    - name: expired_count
+      type: int
+    - name: invalid_actions
+      type: int
+    - name: message
+      type: str
+    - name: reward
+      type: float
+    - name: done
+      type: bool
+
+grading:
+  method: deterministic
+  score_range: [0.0, 1.0]
+  metrics:
+    - name: fulfillment_rate
+      weight: 0.40
+      formula: fulfilled_orders / total_orders
+    - name: urgency_score
+      weight: 0.25
+      formula: fulfilled_urgent / total_urgent
+    - name: efficiency_score
+      weight: 0.20
+      formula: 1.0 - (unnecessary_skips + unnecessary_replenishes) / max_steps
+    - name: validity_score
+      weight: 0.15
+      formula: 1.0 - invalid_actions / total_actions
